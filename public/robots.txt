@@ -1,0 +1,25 @@
+# Podcast Brain - Robots.txt
+# https://podcastbrain.app
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /dashboard/
+Disallow: /library/
+Disallow: /upload/
+Disallow: /chat/
+Disallow: /episode/
+
+# Allow search engines to index public pages
+User-agent: Googlebot
+Allow: /
+Allow: /login
+Allow: /signup
+
+User-agent: Bingbot
+Allow: /
+Allow: /login
+Allow: /signup
+
+# Sitemap location
+Sitemap: https://podcastbrain.app/sitemap.xml

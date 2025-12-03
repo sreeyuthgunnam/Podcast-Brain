@@ -1,0 +1,67 @@
+# Continuous Integration workflow for Podcast Brain
+# Runs on push to main branch and pull requests targeting main
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run ESLint
+        run: npm run lint
+      
+      - name: Type check
+        run: npx tsc --noEmit
+      
+      - name: Build
+        run: npm run build
+        env:
+          # Required for Next.js build
+          # Set these in GitHub repo Settings → Secrets and variables → Actions
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_APP_URL: https://podcast-brain.vercel.app
+
+# =============================================================================
+# SETUP INSTRUCTIONS
+# =============================================================================
+# 
+# To enable the CI workflow, you need to add GitHub Secrets:
+#
+# 1. Go to your GitHub repository
+# 2. Navigate to Settings → Secrets and variables → Actions
+# 3. Click "New repository secret"
+# 4. Add the following secrets:
+#
+#    NEXT_PUBLIC_SUPABASE_URL
+#    - Your Supabase project URL
+#    - Example: https://your-project.supabase.co
+#
+#    NEXT_PUBLIC_SUPABASE_ANON_KEY
+#    - Your Supabase anonymous/public key
+#    - Found in Supabase Dashboard → Settings → API
+#
+# Note: You do NOT need to add SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY,
+# or ASSEMBLYAI_API_KEY as secrets for CI. These are only needed at runtime
+# and are not required for the build process.
+#
+# =============================================================================
