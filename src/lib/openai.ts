@@ -10,12 +10,26 @@
 import OpenAI from 'openai';
 
 // ============================================
-// CLIENT INITIALIZATION
+// CLIENT INITIALIZATION (LAZY)
 // ============================================
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY!,
-});
+let _openai: OpenAI | null = null;
+
+/**
+ * Get OpenAI client instance (lazy initialization)
+ * This prevents errors during build time when env vars aren't available
+ */
+function getOpenAIClient(): OpenAI {
+  if (!_openai) {
+    if (!process.env.OPENAI_API_KEY) {
+      throw new Error('OPENAI_API_KEY environment variable is not set');
+    }
+    _openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY,
+    });
+  }
+  return _openai;
+}
 
 // ============================================
 // CONSTANTS
@@ -139,7 +153,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
   try {
     const response = await withRetry(() =>
-      openai.embeddings.create({
+      getOpenAIClient().embeddings.create({
         model: EMBEDDING_MODEL,
         input: text.trim(),
       })
@@ -197,7 +211,7 @@ export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
 
     try {
       const response = await withRetry(() =>
-        openai.embeddings.create({
+        getOpenAIClient().embeddings.create({
           model: EMBEDDING_MODEL,
           input: batchTexts,
         })
@@ -262,7 +276,7 @@ export async function generateSummary(transcript: string): Promise<string> {
 
   try {
     const response = await withRetry(() =>
-      openai.chat.completions.create({
+      getOpenAIClient().chat.completions.create({
         model: CHAT_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
@@ -319,7 +333,7 @@ export async function extractTopics(transcript: string): Promise<string[]> {
 
   try {
     const response = await withRetry(() =>
-      openai.chat.completions.create({
+      getOpenAIClient().chat.completions.create({
         model: CHAT_MODEL,
         messages: [
           { role: 'system', content: systemPrompt },
@@ -418,7 +432,7 @@ ${truncateToTokenLimit(context, MAX_CONTEXT_TOKENS)}`;
 
   try {
     const response = await withRetry(() =>
-      openai.chat.completions.create({
+      getOpenAIClient().chat.completions.create({
         model: CHAT_MODEL,
         messages,
         temperature: 0.7,
@@ -445,5 +459,5 @@ ${truncateToTokenLimit(context, MAX_CONTEXT_TOKENS)}`;
   }
 }
 
-// Export client for advanced use cases
-export { openai };
+// Export client getter for advanced use cases
+export { getOpenAIClient };

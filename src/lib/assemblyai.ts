@@ -15,12 +15,26 @@ import type {
 } from 'assemblyai';
 
 // ============================================
-// CLIENT INITIALIZATION
+// CLIENT INITIALIZATION (LAZY)
 // ============================================
 
-const client = new AssemblyAI({
-  apiKey: process.env.ASSEMBLYAI_API_KEY!,
-});
+let _client: AssemblyAI | null = null;
+
+/**
+ * Get AssemblyAI client instance (lazy initialization)
+ * This prevents errors during build time when env vars aren't available
+ */
+function getAssemblyAIClient(): AssemblyAI {
+  if (!_client) {
+    if (!process.env.ASSEMBLYAI_API_KEY) {
+      throw new Error('ASSEMBLYAI_API_KEY environment variable is not set');
+    }
+    _client = new AssemblyAI({
+      apiKey: process.env.ASSEMBLYAI_API_KEY,
+    });
+  }
+  return _client;
+}
 
 // ============================================
 // TYPES
@@ -194,7 +208,7 @@ export async function transcribePodcast(
     console.log('Starting transcription for:', audioUrl);
 
     // Configure transcription with all features
-    const transcript = await client.transcripts.transcribe({
+    const transcript = await getAssemblyAIClient().transcripts.transcribe({
       audio_url: audioUrl,
       // Text formatting
       punctuate: true,
@@ -289,7 +303,7 @@ export async function getTranscriptStatus(
   transcriptId: string
 ): Promise<TranscriptStatus> {
   try {
-    const transcript = await client.transcripts.get(transcriptId);
+    const transcript = await getAssemblyAIClient().transcripts.get(transcriptId);
 
     // Map AssemblyAI status to our status
     const statusMap: Record<string, TranscriptStatus['status']> = {
@@ -333,7 +347,7 @@ export async function getTranscript(
   transcriptId: string
 ): Promise<TranscriptResult | null> {
   try {
-    const transcript = await client.transcripts.get(transcriptId);
+    const transcript = await getAssemblyAIClient().transcripts.get(transcriptId);
 
     if (transcript.status !== 'completed' || !transcript.text) {
       return null;
@@ -364,7 +378,7 @@ export async function getTranscript(
  */
 export async function startTranscription(audioUrl: string): Promise<string> {
   try {
-    const transcript = await client.transcripts.submit({
+    const transcript = await getAssemblyAIClient().transcripts.submit({
       audio_url: audioUrl,
       punctuate: true,
       format_text: true,
@@ -385,5 +399,5 @@ export async function startTranscription(audioUrl: string): Promise<string> {
   }
 }
 
-// Export client for advanced use cases
-export { client as assemblyai };
+// Export client getter for advanced use cases
+export { getAssemblyAIClient as assemblyai };
