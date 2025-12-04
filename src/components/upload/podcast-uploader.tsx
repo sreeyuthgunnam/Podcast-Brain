@@ -236,14 +236,33 @@ export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
       dismissToast(loadingToastId);
       showSuccess('Upload complete!', 'Your podcast is now being processed.');
 
-      // Start transcription in background (don't wait for it)
-      fetch('/api/transcribe', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ podcastId: podcast.id }),
-      }).catch((err) => {
-        console.error('Failed to start transcription:', err);
-      });
+      // Start transcription and then embedding (don't wait for it)
+      // We need to chain these calls because Vercel serverless functions
+      // can't do background work after returning a response
+      (async () => {
+        try {
+          const transcribeRes = await fetch('/api/transcribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ podcastId: podcast.id }),
+          });
+          
+          if (transcribeRes.ok) {
+            const transcribeData = await transcribeRes.json();
+            
+            // After transcription completes, call embed endpoint
+            if (transcribeData.needsEmbedding) {
+              await fetch('/api/embed', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ podcastId: podcast.id }),
+              });
+            }
+          }
+        } catch (err) {
+          console.error('Failed to process podcast:', err);
+        }
+      })();
 
       onSuccess?.(podcast);
 

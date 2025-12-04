@@ -9,11 +9,12 @@
  * 5. Ready to Chat!
  * 
  * Includes animations, error handling, and retry functionality.
+ * Also detects "stuck" podcasts (in processing for too long) and offers retry.
  */
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Check,
   Loader2,
@@ -26,6 +27,7 @@ import {
   MessageSquare,
   RefreshCw,
   PartyPopper,
+  AlertTriangle,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -41,6 +43,8 @@ interface ProcessingStatusProps {
   status: PodcastStatus;
   errorMessage?: string;
   onRetry?: () => void;
+  podcastId?: string; // Add podcast ID for reindex functionality
+  updatedAt?: string; // Add to detect stuck podcasts
 }
 
 interface Step {
@@ -245,9 +249,32 @@ export function ProcessingStatus({
   status,
   errorMessage,
   onRetry,
+  podcastId,
+  updatedAt,
 }: ProcessingStatusProps) {
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isStuck, setIsStuck] = useState(false);
+  const [isReindexing, setIsReindexing] = useState(false);
+  const [reindexError, setReindexError] = useState<string | null>(null);
   const currentStepIndex = getStepIndex(status);
+
+  // Check if podcast is stuck in processing (more than 2 minutes)
+  useEffect(() => {
+    if (status === 'processing' && updatedAt) {
+      const checkStuck = () => {
+        const lastUpdate = new Date(updatedAt).getTime();
+        const now = Date.now();
+        const twoMinutes = 2 * 60 * 1000;
+        setIsStuck(now - lastUpdate > twoMinutes);
+      };
+      
+      checkStuck();
+      const interval = setInterval(checkStuck, 10000); // Check every 10 seconds
+      return () => clearInterval(interval);
+    } else {
+      setIsStuck(false);
+    }
+  }, [status, updatedAt]);
 
   // Trigger confetti when status becomes 'ready'
   useEffect(() => {
@@ -257,6 +284,35 @@ export function ProcessingStatus({
       return () => clearTimeout(timer);
     }
   }, [status]);
+
+  // Handle reindex for stuck podcasts
+  const handleReindex = useCallback(async () => {
+    if (!podcastId) return;
+    
+    setIsReindexing(true);
+    setReindexError(null);
+    
+    try {
+      const response = await fetch('/api/reindex', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ podcastId }),
+      });
+      
+      if (response.ok) {
+        // Refresh the page to show updated status
+        window.location.reload();
+      } else {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to reindex');
+      }
+    } catch (error) {
+      console.error('Reindex error:', error);
+      setReindexError(error instanceof Error ? error.message : 'Failed to reindex');
+    } finally {
+      setIsReindexing(false);
+    }
+  }, [podcastId]);
 
   /**
    * Determine step status based on current processing status
@@ -316,6 +372,42 @@ export function ProcessingStatus({
                 Retry Processing
               </Button>
             )}
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Stuck in Processing Alert */}
+      {isStuck && status === 'processing' && podcastId && (
+        <Alert className="mb-6 bg-yellow-500/10 border-yellow-500/20">
+          <AlertTriangle className="h-4 w-4 text-yellow-400" />
+          <AlertTitle className="text-yellow-400">Processing Seems Stuck</AlertTitle>
+          <AlertDescription className="mt-2">
+            <p className="mb-3 text-gray-300">
+              Indexing is taking longer than expected. This can happen due to server timeouts.
+              Click below to retry the indexing process.
+            </p>
+            {reindexError && (
+              <p className="mb-3 text-red-400 text-sm">{reindexError}</p>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleReindex}
+              disabled={isReindexing}
+              className="border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/10"
+            >
+              {isReindexing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Reindexing...
+                </>
+              ) : (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                  Retry Indexing
+                </>
+              )}
+            </Button>
           </AlertDescription>
         </Alert>
       )}

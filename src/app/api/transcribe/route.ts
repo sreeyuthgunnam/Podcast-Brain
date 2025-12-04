@@ -10,7 +10,11 @@
  * 3. Transcribe with AssemblyAI
  * 4. Generate/save summary and topics
  * 5. Update status to 'processing' (ready for embeddings)
- * 6. Trigger embedding in background
+ * 6. Return - client will call /api/embed separately
+ * 
+ * Note: Embedding is NOT done in background here because Vercel serverless
+ * functions terminate immediately after response, killing any pending promises.
+ * The client should call /api/embed after receiving the transcription response.
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -18,46 +22,7 @@ import { z } from 'zod';
 import { createRouteHandlerClient } from '@/lib/supabase/server';
 import { transcribePodcast, TranscriptionError } from '@/lib/assemblyai';
 import { generateSummary, extractTopics } from '@/lib/openai';
-import { indexPodcastChunks } from '@/lib/vectors';
 import type { Podcast } from '@/types';
-
-// ============================================
-// BACKGROUND INDEXING
-// ============================================
-
-/**
- * Index podcast chunks in background
- * If it fails (e.g., OpenAI quota), mark as ready anyway so user can view transcript
- */
-async function indexPodcastInBackground(podcastId: string, userId: string) {
-  const supabase = await createRouteHandlerClient();
-  
-  try {
-    await indexPodcastChunks(podcastId, userId);
-    
-    // Update status to ready
-    await supabase
-      .from('podcasts')
-      .update({
-        status: 'ready',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', podcastId);
-  } catch (error) {
-    console.error(`[Index] Failed to index podcast ${podcastId}:`, error);
-    
-    // Still mark as ready so user can at least view transcript
-    // Chat won't work but that's better than being stuck
-    await supabase
-      .from('podcasts')
-      .update({
-        status: 'ready',
-        error_message: 'Indexing failed - chat may not work. Try reprocessing later.',
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', podcastId);
-  }
-}
 
 // ============================================
 // VALIDATION
@@ -244,13 +209,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Trigger embedding in background (don't wait - it uses OpenAI which may be rate limited)
-    indexPodcastInBackground(podcastId, user.id).catch(() => {
-    });
-
+    // Return success - client will call /api/embed separately
+    // Note: We don't do embedding here because Vercel kills background promises
+    // after the response is sent, causing podcasts to get stuck in 'processing' status
     return NextResponse.json({
       success: true,
       podcast: updatedPodcast as Podcast,
+      needsEmbedding: true, // Signal to client to call /api/embed
     });
   } catch (error) {
     console.error(`[Transcribe] Unexpected error:`, error);

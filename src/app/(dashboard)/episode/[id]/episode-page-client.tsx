@@ -175,8 +175,29 @@ export function EpisodePageClient({ podcast: initialPodcast, chunkCount: initial
       });
 
       if (response.ok) {
-        dismissToast(loadingToastId);
-        showInfo('Processing started', 'Your podcast is being transcribed. This may take a few minutes.');
+        const data = await response.json();
+        
+        // After transcription, call embed endpoint to complete indexing
+        if (data.needsEmbedding) {
+          dismissToast(loadingToastId);
+          const embedToastId = showLoading('Indexing for search...');
+          
+          try {
+            await fetch('/api/embed', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ podcastId: podcast.id }),
+            });
+            dismissToast(embedToastId);
+          } catch {
+            dismissToast(embedToastId);
+            // Embedding failed but transcription succeeded - still show success
+          }
+        } else {
+          dismissToast(loadingToastId);
+        }
+        
+        showInfo('Processing complete', 'Your podcast has been processed.');
         router.refresh();
       } else {
         throw new Error('Failed to reprocess');
@@ -261,6 +282,8 @@ export function EpisodePageClient({ podcast: initialPodcast, chunkCount: initial
             <ProcessingStatus
               status={podcast.status}
               onRetry={handleReprocess}
+              podcastId={podcast.id}
+              updatedAt={podcast.updated_at}
             />
           </CardContent>
         </Card>
