@@ -33,12 +33,12 @@ export default function AuthLayout({
           href="/" 
           className="flex flex-col items-center mb-8 group"
         >
-          <div className="flex items-center justify-center w-16 h-16 bg-white/10 backdrop-blur-sm rounded-2xl mb-4 group-hover:bg-white/20 transition-colors duration-300">
-            <span className="text-4xl" role="img" aria-label="Podcast Brain logo">
+          <div className="flex items-center justify-center w-20 h-20 bg-white/10 backdrop-blur-sm rounded-2xl mb-4 group-hover:bg-white/20 transition-colors duration-300">
+            <span className="text-5xl" role="img" aria-label="Podcast Brain logo">
               🎙️
             </span>
           </div>
-          <h1 className="text-2xl font-bold text-white tracking-tight">
+          <h1 className="text-3xl font-bold text-white tracking-tight">
             Podcast Brain
           </h1>
           <p className="text-sm text-purple-200/60 mt-1">
@@ -47,7 +47,7 @@ export default function AuthLayout({
         </Link>
 
         {/* Auth card */}
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 p-8">
+        <div className="bg-gray-950/90 backdrop-blur-md rounded-2xl shadow-2xl border border-white/10 p-8">
           {children}
         </div>
 
