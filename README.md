@@ -7,6 +7,10 @@ An AI-powered podcast management application that lets you upload podcasts, auto
 ![Supabase](https://img.shields.io/badge/Supabase-Database-green?style=flat-square&logo=supabase)
 ![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-orange?style=flat-square&logo=openai)
 
+## Live Site
+
+[View Podcast Brain](https://podcast-brain.vercel.app)
+
 ## ✨ Features
 
 - 🎵 **Podcast Upload** - Upload audio files up to 100MB (MP3, WAV, M4A, OGG, WebM)
@@ -176,27 +180,6 @@ podcast-brain/
 - **API Routes** - RESTful endpoints in `src/app/api/`
 - **Route Groups** - `(auth)` for public auth pages, `(dashboard)` for protected pages
 - **Middleware** - Handles auth redirects and protected routes
-
-## 🚢 Deployment
-
-### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Import the project in [Vercel](https://vercel.com)
-3. Add all environment variables in Vercel's project settings
-4. Deploy!
-
-### Other Platforms
-
-The app can be deployed to any platform that supports Next.js:
-- [Netlify](https://netlify.com)
-- [Railway](https://railway.app)
-- [AWS Amplify](https://aws.amazon.com/amplify/)
-- [Docker](https://docker.com) (self-hosted)
-
-## 📖 Documentation
-
-- [SETUP.md](./SETUP.md) - Detailed setup instructions for Supabase, API keys, and deployment
 
 ## 🤝 Contributing
 
