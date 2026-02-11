@@ -25,7 +25,7 @@ const protectedRoutes = [
 /**
  * Routes that should redirect to dashboard if already authenticated
  */
-const authRoutes = ['/login', '/signup'];
+const authRoutes = ['/login', '/signup', '/forgot-password'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
