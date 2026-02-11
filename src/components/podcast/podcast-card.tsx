@@ -1,12 +1,3 @@
-/**
- * Podcast Card Component
- * - Displays a podcast episode in a card format
- * - Gradient thumbnail based on title
- * - Status badge, duration, upload date
- * - Topics as tags
- * - Three-dot menu with actions
- */
-
 'use client';
 
 import { useState } from 'react';
@@ -41,22 +32,11 @@ import {
 import { cn, formatRelativeTime, truncateText } from '@/lib/utils';
 import type { Podcast, PodcastStatus } from '@/types';
 
-// ============================================================================
-// Types
-// ============================================================================
-
 interface PodcastCardProps {
   podcast: Podcast;
   onDelete?: (id: string) => void;
 }
 
-// ============================================================================
-// Utility Functions
-// ============================================================================
-
-/**
- * Generate a gradient based on title hash for visual variety
- */
 function getTitleGradient(title: string): string {
   // Simple hash function
   let hash = 0;
@@ -79,9 +59,6 @@ function getTitleGradient(title: string): string {
   return gradients[Math.abs(hash) % gradients.length];
 }
 
-/**
- * Format duration in seconds to human-readable
- */
 function formatDurationHuman(seconds: number | null): string {
   if (!seconds) return '';
 
@@ -94,9 +71,6 @@ function formatDurationHuman(seconds: number | null): string {
   return `${minutes} min`;
 }
 
-/**
- * Get status badge configuration
- */
 function getStatusConfig(status: PodcastStatus): {
   label: string;
   variant: 'default' | 'secondary' | 'destructive' | 'outline' | 'success' | 'warning' | 'info';
@@ -117,10 +91,6 @@ function getStatusConfig(status: PodcastStatus): {
       return { label: status, variant: 'secondary' };
   }
 }
-
-// ============================================================================
-// Component
-// ============================================================================
 
 export function PodcastCard({ podcast, onDelete }: PodcastCardProps) {
   const router = useRouter();

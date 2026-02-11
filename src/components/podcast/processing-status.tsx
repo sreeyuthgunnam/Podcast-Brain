@@ -1,17 +1,3 @@
-/**
- * Processing Status Component
- * 
- * Shows the podcast processing pipeline status as a vertical stepper:
- * 1. Upload Complete
- * 2. Transcribing Audio
- * 3. Generating Summary
- * 4. Indexing for Search
- * 5. Ready to Chat!
- * 
- * Includes animations, error handling, and retry functionality.
- * Also detects "stuck" podcasts (in processing for too long) and offers retry.
- */
-
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
@@ -35,16 +21,12 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import type { PodcastStatus } from '@/types';
 
-// ============================================
-// TYPES
-// ============================================
-
 interface ProcessingStatusProps {
   status: PodcastStatus;
   errorMessage?: string;
   onRetry?: () => void;
-  podcastId?: string; // Add podcast ID for reindex functionality
-  updatedAt?: string; // Add to detect stuck podcasts
+  podcastId?: string;
+  updatedAt?: string;
 }
 
 interface Step {
@@ -57,80 +39,34 @@ interface Step {
 
 type StepStatus = 'completed' | 'current' | 'pending' | 'error';
 
-// ============================================
-// CONSTANTS
-// ============================================
-
 const steps: Step[] = [
-  {
-    id: 'upload',
-    label: 'Upload Complete',
-    description: 'Audio file uploaded successfully',
-    icon: Upload,
-  },
-  {
-    id: 'transcribe',
-    label: 'Transcribing Audio',
-    description: 'Converting speech to text with AI',
-    icon: FileAudio,
-    estimatedTime: '2-5 minutes',
-  },
-  {
-    id: 'summary',
-    label: 'Generating Summary',
-    description: 'Creating summary and extracting topics',
-    icon: Sparkles,
-    estimatedTime: '30 seconds',
-  },
-  {
-    id: 'index',
-    label: 'Indexing for Search',
-    description: 'Creating embeddings for semantic search',
-    icon: Search,
-    estimatedTime: '1 minute',
-  },
-  {
-    id: 'ready',
-    label: 'Ready to Chat!',
-    description: 'Your podcast is ready for AI-powered chat',
-    icon: MessageSquare,
-  },
+  { id: 'upload', label: 'Upload Complete', description: 'Audio file uploaded successfully', icon: Upload },
+  { id: 'transcribe', label: 'Transcribing Audio', description: 'Converting speech to text with AI', icon: FileAudio, estimatedTime: '2-5 minutes' },
+  { id: 'summary', label: 'Generating Summary', description: 'Creating summary and extracting topics', icon: Sparkles, estimatedTime: '30 seconds' },
+  { id: 'index', label: 'Indexing for Search', description: 'Creating embeddings for semantic search', icon: Search, estimatedTime: '1 minute' },
+  { id: 'ready', label: 'Ready to Chat!', description: 'Your podcast is ready for AI-powered chat', icon: MessageSquare },
 ];
 
-/**
- * Map podcast status to step index
- */
 function getStepIndex(status: PodcastStatus): number {
   switch (status) {
-    case 'uploading':
-      return 0; // Currently at upload step
-    case 'transcribing':
-      return 1; // Currently at transcribe step
-    case 'processing':
-      return 3; // Currently at index step (summary is included in transcribing)
-    case 'ready':
-      return 5; // All steps complete
-    case 'error':
-      return -1; // Error state
-    default:
-      return 0;
+    case 'uploading': return 0;
+    case 'transcribing': return 1;
+    case 'processing': return 3;
+    case 'ready': return 5;
+    case 'error': return -1;
+    default: return 0;
   }
 }
-
-// ============================================
-// CONFETTI ANIMATION COMPONENT
-// ============================================
 
 function Confetti() {
   const [particles, setParticles] = useState<Array<{ id: number; x: number; delay: number }>>([]);
 
   useEffect(() => {
-    const newParticles = Array.from({ length: 20 }, (_, i) => ({
+    setParticles(Array.from({ length: 20 }, (_, i) => ({
       id: i,
       x: Math.random() * 100,
       delay: Math.random() * 0.5,
-    }));
-    setParticles(newParticles);
+    })));
   }, []);
 
   return (
@@ -142,19 +78,13 @@ function Confetti() {
           style={{
             left: `${particle.x}%`,
             animationDelay: `${particle.delay}s`,
-            backgroundColor: ['#a855f7', '#ec4899', '#3b82f6', '#22c55e', '#eab308'][
-              particle.id % 5
-            ],
+            backgroundColor: ['#a855f7', '#ec4899', '#3b82f6', '#22c55e', '#eab308'][particle.id % 5],
           }}
         />
       ))}
     </div>
   );
 }
-
-// ============================================
-// STEP INDICATOR COMPONENT
-// ============================================
 
 interface StepIndicatorProps {
   step: Step;
@@ -167,16 +97,14 @@ function StepIndicator({ step, status, isLast }: StepIndicatorProps) {
 
   return (
     <div className="flex gap-4">
-      {/* Indicator Column */}
       <div className="flex flex-col items-center">
-        {/* Circle/Icon */}
         <div
           className={cn(
             'w-10 h-10 rounded-full flex items-center justify-center transition-all duration-500',
-            status === 'completed' && 'bg-green-500/20 text-green-400',
-            status === 'current' && 'bg-purple-500/20 text-purple-400 animate-pulse',
-            status === 'pending' && 'bg-white/5 text-gray-500',
-            status === 'error' && 'bg-red-500/20 text-red-400'
+            status === 'completed' && 'bg-emerald-500/15 text-emerald-500',
+            status === 'current' && 'bg-primary/15 text-primary animate-pulse',
+            status === 'pending' && 'bg-muted text-muted-foreground/40',
+            status === 'error' && 'bg-destructive/15 text-destructive'
           )}
         >
           {status === 'completed' && <Check className="h-5 w-5" />}
@@ -185,54 +113,47 @@ function StepIndicator({ step, status, isLast }: StepIndicatorProps) {
           {status === 'error' && <AlertCircle className="h-5 w-5" />}
         </div>
 
-        {/* Connecting Line */}
         {!isLast && (
           <div
             className={cn(
               'w-0.5 h-12 mt-2 transition-all duration-500',
-              status === 'completed' && 'bg-green-500/50',
-              status === 'current' && 'bg-gradient-to-b from-purple-500/50 to-gray-700',
-              status === 'pending' && 'bg-gray-700 border-l border-dashed border-gray-600',
-              status === 'error' && 'bg-red-500/50'
+              status === 'completed' && 'bg-emerald-500/40',
+              status === 'current' && 'bg-gradient-to-b from-primary/40 to-border',
+              status === 'pending' && 'bg-border',
+              status === 'error' && 'bg-destructive/40'
             )}
           />
         )}
       </div>
 
-      {/* Content Column */}
       <div className="flex-1 pb-8">
         <div className="flex items-center gap-2">
           <Icon
             className={cn(
               'h-4 w-4',
-              status === 'completed' && 'text-green-400',
-              status === 'current' && 'text-purple-400',
-              status === 'pending' && 'text-gray-500',
-              status === 'error' && 'text-red-400'
+              status === 'completed' && 'text-emerald-500',
+              status === 'current' && 'text-primary',
+              status === 'pending' && 'text-muted-foreground/40',
+              status === 'error' && 'text-destructive'
             )}
           />
           <h3
             className={cn(
               'font-medium',
-              status === 'completed' && 'text-green-400',
-              status === 'current' && 'text-white',
-              status === 'pending' && 'text-gray-500',
-              status === 'error' && 'text-red-400'
+              status === 'completed' && 'text-emerald-500',
+              status === 'current' && 'text-foreground',
+              status === 'pending' && 'text-muted-foreground/40',
+              status === 'error' && 'text-destructive'
             )}
           >
             {step.label}
           </h3>
         </div>
-        <p
-          className={cn(
-            'text-sm mt-1',
-            status === 'pending' ? 'text-gray-600' : 'text-gray-400'
-          )}
-        >
+        <p className={cn('text-sm mt-1', status === 'pending' ? 'text-muted-foreground/30' : 'text-muted-foreground')}>
           {step.description}
         </p>
         {status === 'current' && step.estimatedTime && (
-          <p className="text-xs text-purple-300 mt-2">
+          <p className="text-xs text-primary/70 mt-2">
             Estimated time: {step.estimatedTime}
           </p>
         )}
@@ -240,10 +161,6 @@ function StepIndicator({ step, status, isLast }: StepIndicatorProps) {
     </div>
   );
 }
-
-// ============================================
-// PROCESSING STATUS COMPONENT
-// ============================================
 
 export function ProcessingStatus({
   status,
@@ -258,25 +175,21 @@ export function ProcessingStatus({
   const [reindexError, setReindexError] = useState<string | null>(null);
   const currentStepIndex = getStepIndex(status);
 
-  // Check if podcast is stuck in processing (more than 2 minutes)
   useEffect(() => {
     if (status === 'processing' && updatedAt) {
       const checkStuck = () => {
         const lastUpdate = new Date(updatedAt).getTime();
-        const now = Date.now();
         const twoMinutes = 2 * 60 * 1000;
-        setIsStuck(now - lastUpdate > twoMinutes);
+        setIsStuck(Date.now() - lastUpdate > twoMinutes);
       };
-      
       checkStuck();
-      const interval = setInterval(checkStuck, 10000); // Check every 10 seconds
+      const interval = setInterval(checkStuck, 10000);
       return () => clearInterval(interval);
     } else {
       setIsStuck(false);
     }
   }, [status, updatedAt]);
 
-  // Trigger confetti when status becomes 'ready'
   useEffect(() => {
     if (status === 'ready') {
       setShowConfetti(true);
@@ -285,22 +198,17 @@ export function ProcessingStatus({
     }
   }, [status]);
 
-  // Handle reindex for stuck podcasts
   const handleReindex = useCallback(async () => {
     if (!podcastId) return;
-    
     setIsReindexing(true);
     setReindexError(null);
-    
     try {
       const response = await fetch('/api/reindex', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ podcastId }),
       });
-      
       if (response.ok) {
-        // Refresh the page to show updated status
         window.location.reload();
       } else {
         const data = await response.json();
@@ -314,19 +222,13 @@ export function ProcessingStatus({
     }
   }, [podcastId]);
 
-  /**
-   * Determine step status based on current processing status
-   */
   const getStepStatus = (stepIndex: number): StepStatus => {
     if (status === 'error') {
-      // For error state, mark completed steps and show error at current
       if (stepIndex < currentStepIndex || currentStepIndex === -1) {
-        // Guess where error occurred based on status history
         return stepIndex === 0 ? 'completed' : 'error';
       }
       return 'pending';
     }
-
     if (stepIndex < currentStepIndex) return 'completed';
     if (stepIndex === currentStepIndex) return 'current';
     return 'pending';
@@ -334,27 +236,24 @@ export function ProcessingStatus({
 
   return (
     <div className="relative">
-      {/* Confetti Animation */}
       {showConfetti && <Confetti />}
 
-      {/* Success Banner */}
       {status === 'ready' && (
-        <div className="mb-6 p-4 rounded-lg bg-green-500/10 border border-green-500/20 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-green-500/20 flex items-center justify-center">
-            <PartyPopper className="h-5 w-5 text-green-400" />
+        <div className="mb-6 p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-3">
+          <div className="w-10 h-10 rounded-full bg-emerald-500/15 flex items-center justify-center">
+            <PartyPopper className="h-5 w-5 text-emerald-500" />
           </div>
           <div>
-            <h3 className="font-medium text-green-400">Processing Complete!</h3>
-            <p className="text-sm text-gray-400">
+            <h3 className="font-medium text-emerald-500">Processing Complete!</h3>
+            <p className="text-sm text-muted-foreground">
               Your podcast is ready. Start chatting with your content!
             </p>
           </div>
         </div>
       )}
 
-      {/* Error Alert */}
       {status === 'error' && (
-        <Alert variant="destructive" className="mb-6 bg-red-500/10 border-red-500/20">
+        <Alert variant="destructive" className="mb-6">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Processing Failed</AlertTitle>
           <AlertDescription className="mt-2">
@@ -362,12 +261,7 @@ export function ProcessingStatus({
               {errorMessage || 'An error occurred while processing your podcast.'}
             </p>
             {onRetry && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={onRetry}
-                className="border-red-500/30 text-red-300 hover:bg-red-500/10"
-              >
+              <Button variant="outline" size="sm" onClick={onRetry}>
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Retry Processing
               </Button>
@@ -376,25 +270,22 @@ export function ProcessingStatus({
         </Alert>
       )}
 
-      {/* Stuck in Processing Alert */}
       {isStuck && status === 'processing' && podcastId && (
-        <Alert className="mb-6 bg-yellow-500/10 border-yellow-500/20">
-          <AlertTriangle className="h-4 w-4 text-yellow-400" />
-          <AlertTitle className="text-yellow-400">Processing Seems Stuck</AlertTitle>
+        <Alert className="mb-6 bg-amber-500/10 border-amber-500/20">
+          <AlertTriangle className="h-4 w-4 text-amber-500" />
+          <AlertTitle className="text-amber-500">Processing Seems Stuck</AlertTitle>
           <AlertDescription className="mt-2">
-            <p className="mb-3 text-gray-300">
+            <p className="mb-3 text-muted-foreground">
               Indexing is taking longer than expected. This can happen due to server timeouts.
-              Click below to retry the indexing process.
             </p>
             {reindexError && (
-              <p className="mb-3 text-red-400 text-sm">{reindexError}</p>
+              <p className="mb-3 text-destructive text-sm">{reindexError}</p>
             )}
             <Button
               variant="outline"
               size="sm"
               onClick={handleReindex}
               disabled={isReindexing}
-              className="border-yellow-500/30 text-yellow-300 hover:bg-yellow-500/10"
             >
               {isReindexing ? (
                 <>
@@ -412,7 +303,6 @@ export function ProcessingStatus({
         </Alert>
       )}
 
-      {/* Steps */}
       <div className="space-y-0">
         {steps.map((step, index) => (
           <StepIndicator
@@ -424,18 +314,17 @@ export function ProcessingStatus({
         ))}
       </div>
 
-      {/* Overall Progress */}
       {status !== 'ready' && status !== 'error' && (
-        <div className="mt-4 pt-4 border-t border-white/5">
+        <div className="mt-4 pt-4 border-t border-border">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-gray-400">Overall Progress</span>
-            <span className="text-purple-300">
+            <span className="text-muted-foreground">Overall Progress</span>
+            <span className="text-primary font-medium">
               {Math.round((currentStepIndex / (steps.length - 1)) * 100)}%
             </span>
           </div>
-          <div className="mt-2 h-1.5 bg-white/5 rounded-full overflow-hidden">
+          <div className="mt-2 h-1.5 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-gradient-to-r from-purple-500 to-pink-500 transition-all duration-500"
+              className="h-full bg-primary transition-all duration-500 rounded-full"
               style={{
                 width: `${(currentStepIndex / (steps.length - 1)) * 100}%`,
               }}
