@@ -1,11 +1,3 @@
-/**
- * Chat Page Client Component
- * - Podcast filter dropdown
- * - Chat interface with ChatContainer
- * - Empty state for no podcasts
- * - Suggested prompts
- */
-
 'use client';
 
 import { useState, useEffect } from 'react';
