@@ -2,37 +2,162 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Force dark theme always - ignore system preference */
-:root {
-  --background: #0a0a0a;
-  --foreground: #ededed;
-  color-scheme: dark;
+/* ============================================
+   APPLE-INSPIRED DESIGN SYSTEM
+   Light + Dark theme with CSS custom properties
+   ============================================ */
+
+@layer base {
+  :root {
+    --background: 0 0% 99%;
+    --foreground: 0 0% 9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+    --primary: 250 60% 52%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 5% 96%;
+    --secondary-foreground: 240 6% 10%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 240 5% 96%;
+    --accent-foreground: 240 6% 10%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 6% 90%;
+    --input: 240 6% 90%;
+    --ring: 250 60% 52%;
+    --radius: 0.75rem;
+    --glass: 0 0% 100% / 0.72;
+    --glass-border: 0 0% 0% / 0.06;
+    --glass-hover: 0 0% 0% / 0.03;
+    --surface-elevated: 0 0% 100%;
+    --surface-sunken: 240 5% 97%;
+    --sidebar-bg: 240 5% 97%;
+    --sidebar-border: 240 6% 90%;
+    --shadow-color: 240 6% 25%;
+  }
+
+  .dark {
+    --background: 240 6% 7%;
+    --foreground: 0 0% 95%;
+    --card: 240 5% 10%;
+    --card-foreground: 0 0% 95%;
+    --popover: 240 5% 10%;
+    --popover-foreground: 0 0% 95%;
+    --primary: 250 60% 62%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 95%;
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 55%;
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 95%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 250 60% 62%;
+    --glass: 240 6% 10% / 0.72;
+    --glass-border: 0 0% 100% / 0.06;
+    --glass-hover: 0 0% 100% / 0.04;
+    --surface-elevated: 240 5% 12%;
+    --surface-sunken: 240 6% 6%;
+    --sidebar-bg: 240 6% 8%;
+    --sidebar-border: 240 4% 14%;
+    --shadow-color: 240 6% 4%;
+  }
 }
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  html {
+    scroll-behavior: smooth;
+  }
+  ::selection {
+    background: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
+  }
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+  .glass {
+    background: hsl(var(--glass));
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsl(var(--glass-border));
+  }
+  .glass-subtle {
+    background: hsl(var(--glass));
+    backdrop-filter: blur(12px) saturate(150%);
+    -webkit-backdrop-filter: blur(12px) saturate(150%);
+  }
+  .gradient-text {
+    @apply text-transparent bg-clip-text bg-gradient-to-r from-[hsl(var(--primary))] to-purple-400;
+  }
+  .shadow-smooth {
+    box-shadow:
+      0 1px 2px hsl(var(--shadow-color) / 0.04),
+      0 4px 8px hsl(var(--shadow-color) / 0.04),
+      0 8px 16px hsl(var(--shadow-color) / 0.02);
+  }
+  .shadow-smooth-lg {
+    box-shadow:
+      0 2px 4px hsl(var(--shadow-color) / 0.04),
+      0 8px 16px hsl(var(--shadow-color) / 0.06),
+      0 16px 32px hsl(var(--shadow-color) / 0.04);
+  }
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
-/* Confetti Animation */
-@keyframes confetti {
-  0% {
-    transform: translateY(0) rotate(0deg);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(400px) rotate(720deg);
-    opacity: 0;
-  }
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.animate-confetti {
-  animation: confetti 2s ease-out forwards;
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out forwards;
 }
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out forwards;
+}
+.animate-slide-up {
+  animation: slide-up 0.5s ease-out forwards;
+}
+
+.stagger-children > * {
+  opacity: 0;
+  animation: fade-in 0.4s ease-out forwards;
+}
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+.stagger-children > *:nth-child(6) { animation-delay: 300ms; }
