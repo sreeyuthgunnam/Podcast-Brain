@@ -1,12 +1,3 @@
-/**
- * Dashboard Page Client Component
- * - Stats cards
- * - Processing queue
- * - Recent podcasts and chats
- * - Quick actions
- * - Getting started guide
- */
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -32,10 +23,6 @@ import { Button } from '@/components/ui/button';
 import { cn, formatRelativeTime, truncateText } from '@/lib/utils';
 import type { Podcast, ChatMessage, PodcastStatus } from '@/types';
 
-// ============================================================================
-// Types
-// ============================================================================
-
 interface StatsData {
   totalPodcasts: number;
   totalDuration: number;
@@ -51,10 +38,6 @@ interface StatsData {
   recentPodcasts: Podcast[];
   recentChats: ChatMessage[];
 }
-
-// ============================================================================
-// Component
-// ============================================================================
 
 export function DashboardPageClient() {
   const [stats, setStats] = useState<StatsData | null>(null);
@@ -96,12 +79,10 @@ export function DashboardPageClient() {
   const hasProcessing = processingPodcasts.length > 0;
   const showGettingStarted = (stats?.totalPodcasts || 0) < 3;
 
-  // Loading state
   if (isLoading) {
     return <DashboardSkeleton />;
   }
 
-  // Error state
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
@@ -130,29 +111,29 @@ export function DashboardPageClient() {
           title="Total Podcasts"
           value={stats?.totalPodcasts || 0}
           icon={Mic}
-          iconColor="text-purple-500"
-          iconBg="bg-purple-100 dark:bg-purple-900/30"
+          iconColor="text-primary"
+          iconBg="bg-primary/10"
         />
         <StatCard
           title="Total Hours"
           value={formatHours(stats?.totalDuration || 0)}
           icon={Clock}
-          iconColor="text-blue-500"
-          iconBg="bg-blue-100 dark:bg-blue-900/30"
+          iconColor="text-sky-500"
+          iconBg="bg-sky-500/10"
         />
         <StatCard
           title="Indexed Chunks"
           value={stats?.totalChunks || 0}
           icon={Database}
-          iconColor="text-green-500"
-          iconBg="bg-green-100 dark:bg-green-900/30"
+          iconColor="text-emerald-500"
+          iconBg="bg-emerald-500/10"
         />
         <StatCard
           title="Chat Messages"
           value={stats?.totalChats || 0}
           icon={MessageSquare}
-          iconColor="text-orange-500"
-          iconBg="bg-orange-100 dark:bg-orange-900/30"
+          iconColor="text-amber-500"
+          iconBg="bg-amber-500/10"
         />
       </div>
 
@@ -238,24 +219,24 @@ export function DashboardPageClient() {
             icon={Upload}
             title="Upload Podcast"
             description="Add a new podcast to your library"
-            iconColor="text-purple-500"
-            iconBg="bg-purple-100 dark:bg-purple-900/30"
+            iconColor="text-primary"
+            iconBg="bg-primary/10"
           />
           <QuickActionCard
             href="/library"
             icon={Library}
             title="Browse Library"
             description="Explore your podcast collection"
-            iconColor="text-blue-500"
-            iconBg="bg-blue-100 dark:bg-blue-900/30"
+            iconColor="text-sky-500"
+            iconBg="bg-sky-500/10"
           />
           <QuickActionCard
             href="/chat"
             icon={Sparkles}
             title="Start Chatting"
             description="Ask AI about your podcasts"
-            iconColor="text-green-500"
-            iconBg="bg-green-100 dark:bg-green-900/30"
+            iconColor="text-emerald-500"
+            iconBg="bg-emerald-500/10"
           />
         </div>
       </section>
@@ -280,7 +261,7 @@ export function DashboardPageClient() {
                   text="Chat with your content"
                 />
               </div>
-              <div className="mt-6 p-4 bg-muted rounded-lg">
+              <div className="mt-6 p-4 bg-muted rounded-xl">
                 <h4 className="font-medium mb-2">💡 Tips</h4>
                 <ul className="text-sm text-muted-foreground space-y-1">
                   <li>• Upload MP3 or WAV files up to 100MB</li>
@@ -296,10 +277,6 @@ export function DashboardPageClient() {
   );
 }
 
-// ============================================================================
-// Sub-components
-// ============================================================================
-
 interface StatCardProps {
   title: string;
   value: string | number;
@@ -313,7 +290,7 @@ function StatCard({ title, value, icon: Icon, iconColor, iconBg }: StatCardProps
     <Card>
       <CardContent className="p-4 sm:pt-6 sm:p-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-          <div className={cn('p-2 sm:p-3 rounded-lg w-fit', iconBg)}>
+          <div className={cn('p-2 sm:p-3 rounded-xl w-fit', iconBg)}>
             <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6', iconColor)} />
           </div>
           <div>
@@ -445,9 +422,9 @@ function QuickActionCard({
 }: QuickActionCardProps) {
   return (
     <Link href={href}>
-      <Card className="h-full hover:shadow-md hover:-translate-y-0.5 transition-all cursor-pointer active:translate-y-0">
+      <Card className="h-full hover:shadow-smooth hover:-translate-y-0.5 transition-all cursor-pointer active:translate-y-0">
         <CardContent className="p-4 sm:pt-6 sm:p-6">
-          <div className={cn('w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center mb-3 sm:mb-4', iconBg)}>
+          <div className={cn('w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center mb-3 sm:mb-4', iconBg)}>
             <Icon className={cn('w-5 h-5 sm:w-6 sm:h-6', iconColor)} />
           </div>
           <h3 className="font-semibold mb-1 text-sm sm:text-base">{title}</h3>
@@ -467,7 +444,7 @@ function ChecklistItem({ checked, text }: ChecklistItemProps) {
   return (
     <div className="flex items-center gap-3">
       {checked ? (
-        <CheckCircle2 className="w-5 h-5 text-green-500" />
+        <CheckCircle2 className="w-5 h-5 text-emerald-500" />
       ) : (
         <Circle className="w-5 h-5 text-muted-foreground" />
       )}
@@ -530,7 +507,7 @@ function DashboardSkeleton() {
           {[...Array(3)].map((_, i) => (
             <Card key={i}>
               <CardContent className="pt-6">
-                <div className="w-12 h-12 bg-muted rounded-lg animate-pulse mb-4" />
+                <div className="w-12 h-12 bg-muted rounded-xl animate-pulse mb-4" />
                 <div className="h-5 w-32 bg-muted rounded animate-pulse mb-2" />
                 <div className="h-4 w-48 bg-muted rounded animate-pulse" />
               </CardContent>
