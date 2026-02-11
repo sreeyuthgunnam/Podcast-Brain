@@ -177,27 +177,6 @@ podcast-brain/
 - **Route Groups** - `(auth)` for public auth pages, `(dashboard)` for protected pages
 - **Middleware** - Handles auth redirects and protected routes
 
-## 🚢 Deployment
-
-### Vercel (Recommended)
-
-1. Push your code to GitHub
-2. Import the project in [Vercel](https://vercel.com)
-3. Add all environment variables in Vercel's project settings
-4. Deploy!
-
-### Other Platforms
-
-The app can be deployed to any platform that supports Next.js:
-- [Netlify](https://netlify.com)
-- [Railway](https://railway.app)
-- [AWS Amplify](https://aws.amazon.com/amplify/)
-- [Docker](https://docker.com) (self-hosted)
-
-## 📖 Documentation
-
-- [SETUP.md](./SETUP.md) - Detailed setup instructions for Supabase, API keys, and deployment
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
