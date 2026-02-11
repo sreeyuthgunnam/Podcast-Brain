@@ -1,13 +1,3 @@
-/**
- * Dashboard Layout
- * 
- * Protected layout wrapper for all dashboard pages:
- * - Server component that fetches user data
- * - Redirects to login if not authenticated
- * - Desktop: Fixed sidebar (256px) + main content
- * - Mobile: Header with hamburger menu + full width content
- */
-
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { Sidebar } from '@/components/layout/sidebar';
@@ -21,25 +11,14 @@ interface DashboardLayoutProps {
 
 export default async function DashboardLayout({ children }: DashboardLayoutProps) {
   const supabase = await createClient();
+  const { data: { user: authUser } } = await supabase.auth.getUser();
 
-  // Get current authenticated user
-  const {
-    data: { user: authUser },
-  } = await supabase.auth.getUser();
-
-  // Redirect to login if not authenticated
   if (!authUser) {
     redirect('/login');
   }
 
-  // Fetch user profile from database
-  const { data: profile } = await supabase
-    .from('users')
-    .select('*')
-    .eq('id', authUser.id)
-    .single();
+  const { data: profile } = await supabase.from('users').select('*').eq('id', authUser.id).single();
 
-  // Build user object (fallback to auth user data if profile doesn't exist yet)
   const user: User = {
     id: authUser.id,
     email: authUser.email || '',
@@ -49,26 +28,18 @@ export default async function DashboardLayout({ children }: DashboardLayoutProps
   };
 
   return (
-    <div className="min-h-screen bg-gray-950">
-      {/* Desktop Sidebar - Hidden on mobile */}
+    <div className="min-h-screen bg-background">
       <aside className="hidden md:flex">
         <Sidebar user={user} />
       </aside>
-
-      {/* Mobile Header - Hidden on desktop */}
       <Header user={user} />
-
-      {/* Main Content Area */}
       <main className="md:pl-64 min-h-screen">
-        {/* Add top padding on mobile for fixed header */}
         <div className="pt-14 md:pt-0">
-          <div className="container mx-auto px-4 py-6 max-w-7xl">
+          <div className="container mx-auto px-5 py-6 max-w-7xl">
             {children}
           </div>
         </div>
       </main>
-
-      {/* Toast Notifications */}
       <Toaster />
     </div>
   );
