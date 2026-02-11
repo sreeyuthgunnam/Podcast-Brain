@@ -7,6 +7,10 @@ An AI-powered podcast management application that lets you upload podcasts, auto
 ![Supabase](https://img.shields.io/badge/Supabase-Database-green?style=flat-square&logo=supabase)
 ![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-orange?style=flat-square&logo=openai)
 
+## Live Site
+
+[View Podcast Brain](https://podcast-brain.vercel.app)
+
 ## ✨ Features
 
 - 🎵 **Podcast Upload** - Upload audio files up to 100MB (MP3, WAV, M4A, OGG, WebM)
