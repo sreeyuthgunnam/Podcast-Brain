@@ -1,13 +1,3 @@
-/**
- * Chat Message Component
- * - Renders individual chat message
- * - Different styles for user/assistant
- * - Markdown rendering for responses
- * - Source citations with links
- * - Timestamp display
- * - Copy button on hover
- */
-
 'use client';
 
 import { useState } from 'react';

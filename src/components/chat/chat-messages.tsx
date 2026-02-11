@@ -1,11 +1,3 @@
-/**
- * Chat Messages Component
- * - Renders list of chat messages
- * - Auto-scrolls to bottom on new messages
- * - Shows loading indicator
- * - Empty state for no messages
- */
-
 'use client';
 
 import { useEffect, useRef } from 'react';

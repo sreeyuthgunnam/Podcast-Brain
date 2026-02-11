@@ -1,11 +1,3 @@
-/**
- * Chat Container Component
- * - Main chat interface wrapper
- * - Manages chat state with zustand
- * - Handles message submission
- * - Renders message list and input
- */
-
 'use client';
 
 import { useEffect } from 'react';
