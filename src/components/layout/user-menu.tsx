@@ -12,7 +12,7 @@
 export function UserMenu() {
   return (
     <div className="relative">
-      <p className="text-gray-500">User menu - Coming Soon</p>
+      <p className="text-muted-foreground">User menu — Coming Soon</p>
     </div>
   );
 }

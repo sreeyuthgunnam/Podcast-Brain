@@ -10,7 +10,7 @@
 export function OAuthButtons() {
   return (
     <div className="space-y-2">
-      <p className="text-gray-500">OAuth buttons - Coming Soon</p>
+      <p className="text-muted-foreground">OAuth buttons — Coming Soon</p>
     </div>
   );
 }
