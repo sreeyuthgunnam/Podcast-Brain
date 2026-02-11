@@ -1,10 +1,3 @@
-/**
- * Chat Sources Component
- * - Expandable section showing source citations
- * - Displays podcast title, timestamp, and content snippet
- * - Collapsed by default
- */
-
 'use client';
 
 import { useState } from 'react';
@@ -95,9 +88,9 @@ interface SimilarityBadgeProps {
 
 function SimilarityBadge({ percent }: SimilarityBadgeProps) {
   const getColorClass = () => {
-    if (percent >= 85) return 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400';
-    if (percent >= 70) return 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400';
-    return 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400';
+    if (percent >= 85) return 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400';
+    if (percent >= 70) return 'bg-amber-500/15 text-amber-600 dark:text-amber-400';
+    return 'bg-muted text-muted-foreground';
   };
 
   return (

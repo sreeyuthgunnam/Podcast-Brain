@@ -1,14 +1,3 @@
-/**
- * Podcast Uploader Component
- * 
- * Complete podcast upload experience with:
- * - Drag & drop zone
- * - File validation
- * - Form fields (title, description)
- * - Upload progress tracking
- * - Success/error states
- */
-
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
@@ -42,19 +31,11 @@ import {
 import { cn } from '@/lib/utils';
 import type { Podcast } from '@/types';
 
-// ============================================
-// TYPES
-// ============================================
-
 type UploadState = 'idle' | 'selected' | 'uploading' | 'success' | 'error';
 
 interface PodcastUploaderProps {
   onSuccess?: (podcast: Podcast) => void;
 }
-
-// ============================================
-// PODCAST UPLOADER COMPONENT
-// ============================================
 
 export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
   const router = useRouter();
@@ -298,13 +279,9 @@ export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
     setState('selected');
   };
 
-  // ============================================
-  // RENDER: IDLE STATE (DROP ZONE)
-  // ============================================
-
   if (state === 'idle') {
     return (
-      <Card className="bg-gray-900/50 border-white/10">
+      <Card>
         <CardContent className="p-0">
           <div
             onDragOver={handleDragOver}
@@ -312,11 +289,11 @@ export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
             onDrop={handleDrop}
             onClick={handleBrowseClick}
             className={cn(
-              'relative cursor-pointer rounded-lg border-2 border-dashed transition-all duration-200',
+              'relative cursor-pointer rounded-xl border-2 border-dashed transition-all duration-200',
               'flex flex-col items-center justify-center p-12',
               isDragOver
-                ? 'border-purple-500 bg-purple-500/10'
-                : 'border-white/20 hover:border-purple-500/50 hover:bg-white/5'
+                ? 'border-primary bg-primary/5'
+                : 'border-border hover:border-primary/50 hover:bg-accent/50'
             )}
           >
             <input
@@ -330,30 +307,30 @@ export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
             <div
               className={cn(
                 'w-16 h-16 rounded-full flex items-center justify-center mb-4 transition-colors',
-                isDragOver ? 'bg-purple-500/20' : 'bg-white/5'
+                isDragOver ? 'bg-primary/15' : 'bg-muted'
               )}
             >
               <Upload
                 className={cn(
                   'h-8 w-8 transition-colors',
-                  isDragOver ? 'text-purple-400' : 'text-gray-400'
+                  isDragOver ? 'text-primary' : 'text-muted-foreground'
                 )}
               />
             </div>
 
-            <h3 className="text-lg font-medium text-white mb-2">
+            <h3 className="text-lg font-medium mb-2">
               Drag and drop your audio file here
             </h3>
-            <p className="text-gray-400 mb-4">or click to browse</p>
+            <p className="text-muted-foreground mb-4">or click to browse</p>
 
-            <div className="flex flex-wrap justify-center gap-2 text-xs text-gray-500">
+            <div className="flex flex-wrap justify-center gap-2 text-xs text-muted-foreground/60">
               <span>Accepted formats: {ALLOWED_EXTENSIONS.join(', ')}</span>
-              <span>•</span>
+              <span>·</span>
               <span>Max size: {formatFileSize(MAX_FILE_SIZE)}</span>
             </div>
 
             {error && (
-              <div className="mt-4 flex items-center gap-2 text-red-400 text-sm">
+              <div className="mt-4 flex items-center gap-2 text-destructive text-sm">
                 <AlertCircle className="h-4 w-4" />
                 {error}
               </div>
@@ -364,26 +341,21 @@ export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
     );
   }
 
-  // ============================================
-  // RENDER: SELECTED STATE (FILE INFO + FORM)
-  // ============================================
-
   if (state === 'selected' || state === 'error') {
     return (
-      <Card className="bg-gray-900/50 border-white/10">
+      <Card>
         <CardContent className="p-6 space-y-6">
-          {/* File Info */}
-          <div className="flex items-start gap-4 p-4 rounded-lg bg-white/5">
-            <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center shrink-0">
-              <FileAudio className="h-6 w-6 text-purple-400" />
+          <div className="flex items-start gap-4 p-4 rounded-xl bg-muted/50">
+            <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <FileAudio className="h-6 w-6 text-primary" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-white font-medium truncate">{file?.name}</p>
-              <div className="flex items-center gap-3 text-sm text-gray-400 mt-1">
+              <p className="font-medium truncate">{file?.name}</p>
+              <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
                 <span>{file ? formatFileSize(file.size) : ''}</span>
                 {duration && (
                   <>
-                    <span>•</span>
+                    <span>·</span>
                     <span>{formatDuration(duration)}</span>
                   </>
                 )}
@@ -392,16 +364,15 @@ export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
             <Button
               variant="ghost"
               size="icon"
-              className="text-gray-400 hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
               onClick={handleClearFile}
             >
               <X className="h-4 w-4" />
             </Button>
           </div>
 
-          {/* Audio Preview */}
           {file && (
-            <div className="p-4 rounded-lg bg-white/5">
+            <div className="p-4 rounded-xl bg-muted/50">
               <audio
                 controls
                 className="w-full h-10"
@@ -412,24 +383,22 @@ export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
             </div>
           )}
 
-          {/* Form Fields */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-white">
-                Title <span className="text-red-400">*</span>
+              <Label htmlFor="title">
+                Title <span className="text-destructive">*</span>
               </Label>
               <Input
                 id="title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Episode title"
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-500"
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="description" className="text-white">
-                Description <span className="text-gray-500">(optional)</span>
+              <Label htmlFor="description">
+                Description <span className="text-muted-foreground">(optional)</span>
               </Label>
               <Textarea
                 id="description"
@@ -437,41 +406,28 @@ export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Add a description for your podcast episode..."
                 rows={4}
-                className="bg-white/5 border-white/10 text-white placeholder:text-gray-500 resize-none"
+                className="resize-none"
               />
             </div>
           </div>
 
-          {/* Error Message */}
           {error && (
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-destructive/10 border border-destructive/20 text-destructive text-sm">
               <AlertCircle className="h-4 w-4 shrink-0" />
               {error}
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex items-center justify-end gap-3">
-            <Button
-              variant="outline"
-              onClick={handleClearFile}
-              className="border-white/10 text-white hover:bg-white/5"
-            >
+            <Button variant="outline" onClick={handleClearFile}>
               Cancel
             </Button>
             {state === 'error' ? (
-              <Button
-                onClick={handleRetry}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
+              <Button onClick={handleRetry}>
                 Try Again
               </Button>
             ) : (
-              <Button
-                onClick={handleUpload}
-                disabled={!title.trim()}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
+              <Button onClick={handleUpload} disabled={!title.trim()}>
                 <Upload className="mr-2 h-4 w-4" />
                 Upload Podcast
               </Button>
@@ -482,39 +438,28 @@ export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
     );
   }
 
-  // ============================================
-  // RENDER: UPLOADING STATE
-  // ============================================
-
   if (state === 'uploading') {
     return (
-      <Card className="bg-gray-900/50 border-white/10">
+      <Card>
         <CardContent className="p-6">
           <div className="space-y-6">
-            {/* File Info */}
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center">
-                <Loader2 className="h-6 w-6 text-purple-400 animate-spin" />
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
+                <Loader2 className="h-6 w-6 text-primary animate-spin" />
               </div>
               <div className="flex-1">
-                <p className="text-white font-medium">Uploading...</p>
-                <p className="text-sm text-gray-400">{file?.name}</p>
+                <p className="font-medium">Uploading...</p>
+                <p className="text-sm text-muted-foreground">{file?.name}</p>
               </div>
-              <span className="text-lg font-semibold text-purple-400">
+              <span className="text-lg font-semibold text-primary">
                 {progress}%
               </span>
             </div>
 
-            {/* Progress Bar */}
-            <Progress value={progress} className="h-2 bg-white/10" />
+            <Progress value={progress} className="h-2" />
 
-            {/* Cancel Button */}
             <div className="flex justify-center">
-              <Button
-                variant="outline"
-                onClick={handleCancel}
-                className="border-white/10 text-white hover:bg-white/5"
-              >
+              <Button variant="outline" onClick={handleCancel}>
                 <X className="mr-2 h-4 w-4" />
                 Cancel Upload
               </Button>
@@ -525,25 +470,19 @@ export function PodcastUploader({ onSuccess }: PodcastUploaderProps) {
     );
   }
 
-  // ============================================
-  // RENDER: SUCCESS STATE
-  // ============================================
-
   if (state === 'success') {
     return (
-      <Card className="bg-gray-900/50 border-white/10">
+      <Card>
         <CardContent className="p-6">
           <div className="text-center py-8">
-            <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-4">
-              <Check className="h-8 w-8 text-green-400" />
+            <div className="w-16 h-16 rounded-full bg-emerald-500/15 flex items-center justify-center mx-auto mb-4">
+              <Check className="h-8 w-8 text-emerald-500" />
             </div>
-            <h3 className="text-xl font-semibold text-white mb-2">
-              Upload Complete!
-            </h3>
-            <p className="text-gray-400 mb-6">
+            <h3 className="text-xl font-semibold mb-2">Upload Complete!</h3>
+            <p className="text-muted-foreground mb-6">
               Your podcast is now being transcribed. This may take a few minutes.
             </p>
-            <div className="flex items-center justify-center gap-2 text-sm text-gray-500">
+            <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground/60">
               <Loader2 className="h-4 w-4 animate-spin" />
               Redirecting to episode page...
             </div>

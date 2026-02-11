@@ -1,12 +1,3 @@
-/**
- * Chat Input Component
- * - Textarea that grows with content (max 4 lines)
- * - Send button with arrow icon
- * - Send on Enter (Shift+Enter for new line)
- * - Disabled state when loading
- * - Character limit indicator
- */
-
 'use client';
 
 import { useState, useRef, useEffect, KeyboardEvent } from 'react';
@@ -84,9 +75,9 @@ export function ChatInput({
             disabled={isLoading}
             rows={1}
             className={cn(
-              'w-full resize-none rounded-xl border border-gray-700 bg-gray-800 px-4 py-3',
-              'text-sm text-white placeholder:text-gray-400',
-              'focus:outline-none focus:ring-2 focus:ring-purple-500/20 focus:border-purple-500',
+              'w-full resize-none rounded-xl border bg-background px-4 py-3',
+              'text-sm placeholder:text-muted-foreground',
+              'focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary',
               'disabled:opacity-50 disabled:cursor-not-allowed',
               'transition-colors',
               isOverLimit && 'border-destructive focus:ring-destructive/20'

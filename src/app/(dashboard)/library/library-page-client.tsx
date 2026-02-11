@@ -1,10 +1,3 @@
-/**
- * Library Page Client Component
- * - Search, filter, and sort podcasts
- * - Responsive grid of PodcastCards
- * - Empty states and loading skeletons
- */
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -24,10 +17,6 @@ import { showSuccess, showError } from '@/lib/toast';
 import { cn } from '@/lib/utils';
 import type { Podcast, PodcastStatus } from '@/types';
 
-// ============================================================================
-// Types
-// ============================================================================
-
 type SortOption = 'newest' | 'oldest' | 'title-asc';
 type StatusFilter = 'all' | PodcastStatus;
 
@@ -36,10 +25,6 @@ interface FilterState {
   status: StatusFilter;
   sort: SortOption;
 }
-
-// ============================================================================
-// Constants
-// ============================================================================
 
 const STATUS_OPTIONS: { value: StatusFilter; label: string }[] = [
   { value: 'all', label: 'All Status' },
@@ -56,10 +41,6 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 
 const ITEMS_PER_PAGE = 12;
 
-// ============================================================================
-// Custom Hook: useDebounce
-// ============================================================================
-
 function useDebounce<T>(value: T, delay: number): T {
   const [debouncedValue, setDebouncedValue] = useState(value);
 
@@ -70,10 +51,6 @@ function useDebounce<T>(value: T, delay: number): T {
 
   return debouncedValue;
 }
-
-// ============================================================================
-// Component
-// ============================================================================
 
 export function LibraryPageClient() {
   const [podcasts, setPodcasts] = useState<Podcast[]>([]);
@@ -294,10 +271,6 @@ export function LibraryPageClient() {
     </div>
   );
 }
-
-// ============================================================================
-// Sub-components
-// ============================================================================
 
 function Header() {
   return (
